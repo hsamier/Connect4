@@ -131,4 +131,41 @@ def evaluate_window(window, cell):
 
 	return sc
 
-#tt
+def score_position(game_board, token):
+	points = 0
+
+	## Score center column
+	game_board_center = [int(i) for i in list(game_board[:, C//2])]
+	board_center_count = game_board_center .count(token)
+	points += board_center_count * 3
+
+	## Vertical points
+	for i in range(C):
+		column_board = [int(k) for k in list(game_board[:,i])]
+		for j in range(R-3):
+			window = column_board[j:j+WINDOW_LENGTH]
+			points += evaluate_window(window, token)
+
+	## Horizontal points
+	for i in range(R):
+		row_board = [int(k) for k in list(game_board[i,:])]
+		for j in range(C-3):
+			window = row_board [j:j+WINDOW_LENGTH]
+			points += evaluate_window(window, token)
+
+    ##negative diagonal points
+	for i in range(R-3):
+		for j in range(C-3):
+			window = [game_board[i+3-k][j+k] for k in range(WINDOW_LENGTH)]
+			points += evaluate_window(window, token)
+
+	##posiive diagonal points
+	for i in range(R-3):
+		for j in range(C-3):
+			window = [game_board[i+k][j+k] for k in range(WINDOW_LENGTH)]
+			points += evaluate_window(window, token)
+
+	return points
+
+def is_terminal_node(game_board):
+	return winning_move(game_board, COMPUTER ) or winning_move(board, AI_AGENT) #or len(get_valid_locations(game_board)) == 0
