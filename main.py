@@ -71,3 +71,51 @@ pygame.display.update()
 
 myfont = pygame.font.SysFont("monospace", 75)
 
+
+def winning_move(game_board, cell):
+
+    # Check vertical
+    for j in range(C):
+        for i in range(R - 3):
+            if game_board[i][j] == cell and game_board[i + 1][j] == cell and game_board[i + 2][j] == cell and game_board[i + 3][j] == cell:
+                return True
+
+	# Check horizontal
+	for j in range(C-3):
+		for i in range(R):
+			if game_board[i][j] == cell and game_board[i][j+1] == cell and game_board[i][j+2] == cell and game_board[i][j+3] == cell:
+				return True
+
+
+	# Check negatively diagonals
+	for j in range(C-3):
+		for i in range(3, R):
+			if game_board[i][j] == cell and game_board[i-1][j+1] == cell and game_board[i-2][j+2] == cell and game_board[i-3][j+3] == cell:
+				return True
+
+	# Check positively diagonals
+	for j in range(C-3):
+		for i in range(R-3):
+			if game_board[i][j] == cell and game_board[i+1][j+1] == cell and game_board[i+2][j+2] == cell and game_board[i+3][j+3] == cell:
+				return True
+
+
+
+def evaluate_window(window, cell):
+	sc= 0
+	o_cell = COMPUTER
+	if o_cell == COMPUTER:
+		o_cell = AI_AGENT
+
+	if window.count(cell) == 4:
+		sc+=100
+	elif window.count(cell) == 3 and window.count(FREE) == 1:
+		sc+=20
+	elif window.count(cell) == 2 and window.count(FREE) == 2:
+		sc+=10
+
+	if window.count(o_cell) == 3 and window.count(FREE) == 1:
+		sc-=1
+
+	return sc
+

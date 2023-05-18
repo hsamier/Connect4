@@ -94,4 +94,3 @@ class Board:
             self._get_grid_cordinates()[column][1] + TOP,
         )
 
-####test
