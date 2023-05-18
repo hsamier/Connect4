@@ -28,8 +28,20 @@ def create_board():
     return board
 
 
-def print_board(board):
-	print(np.flip(board, 0))
+def print_board(game_board):
+	print(np.flip(game_board, 0))
+
+#
+def drop_piece(game_board, row, column, cell):
+	game_board[row][column] = cell
+
+def is_valid_location(game_board, column):
+	return game_board[R-1][column] == 0
+
+def get_next_open_row(game_board, column):
+	for i in range(R):
+		if game_board[i][column] == 0:
+		    return i
 
 
 def draw_board(board):
