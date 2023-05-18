@@ -84,6 +84,8 @@ pygame.display.update()
 myfont = pygame.font.SysFont("monospace", 75)
 
 
+
+
 def winning_move(game_board, cell):
 
     # Check vertical
@@ -168,4 +170,57 @@ def score_position(game_board, token):
 	return points
 
 def is_terminal_node(game_board):
-	return winning_move(game_board, COMPUTER ) or winning_move(board, AI_AGENT) #or len(get_valid_locations(game_board)) == 0
+	return winning_move(game_board, COMPUTER ) or winning_move(board, AI_AGENT) or len(get_valid_locations(game_board)) == 0
+
+
+def minimax(game_board, depth, alpha, beta, maximizedP):
+	valid_cells = get_valid_locations(game_board)
+	terminal = is_terminal_node(game_board)
+	if depth == 0 or terminal:
+		if terminal:
+			if winning_move(game_board, AI_AGENT):
+				return (None, 100000000000000)
+			elif winning_move(game_board, COMPUTER):
+				return (None, -10000000000000)
+			else: # Game is over, no more valid moves
+				return (None, 0)
+		else: # Depth is zero
+			return (None, score_position(game_board, AI_AGENT))
+	if maximizedP:
+		val = -math.inf
+		column = random.choice(valid_cells)
+		for coll in valid_cells:
+			ROW = get_next_open_row(game_board, coll)
+			game_board_copy = board.copy()
+			drop_piece(game_board_copy, ROW, coll, AI_PIECE)
+			new_score = minimax(game_board_copy, depth-1, alpha, beta, False)[1]
+			if new_score > val:
+				val = new_score
+				column = coll
+			alpha = max(alpha, val)
+			if alpha >= beta:
+				break
+		return column, val
+
+	else: # Minimizing player
+		val = math.inf
+		column = random.choice(valid_cells)
+		for coll in valid_cells:
+			ROW = get_next_open_row(game_board, coll)
+			game_board_copy = board.copy()
+			drop_piece(b_copy, ROW, coll, COMPUTER)
+			new_score = minimax(game_board_copy, depth-1, alpha, beta, True)[1]
+			if new_score < val:
+				val = new_score
+				column = coll
+			beta = min(beta, val)
+			if alpha >= beta:
+				break
+		return column, val
+
+	def get_valid_locations(game_board):
+	    valid_cells = []
+        for col in range(C):
+            if is_valid_location(game_board, col):
+                valid_cells.append(col)
+        return valid_cells
