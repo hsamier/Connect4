@@ -31,7 +31,7 @@ def create_board():
 def print_board(game_board):
 	print(np.flip(game_board, 0))
 
-
+#
 def drop_piece(game_board, row, column, cell):
 	game_board[row][column] = cell
 
