@@ -4,6 +4,9 @@ import numpy as np
 import math
 import time
 import random
+import tkinter as tk
+from tkinter import ttk
+
 from pygame.locals import *
 
 R = 6
@@ -295,24 +298,26 @@ myfont = pygame.font.SysFont("monospace", 75)
 turn = random.randint(comp, AI)
 
 
-def play_game():
+def play_game(algo,level):
     board = generate_board()
     game_over = False
     turn = 0
     flag = 0
     pygame.init()
-
+    count =0
     while not game_over:
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
 
         if turn == 0:
+            count += 1
             # Agent's Move
-            # if flag == 1:
-            #     col, minimax_score = minimax(board, 5, True)
-            # elif flag == 2:
-            col, minimax_score = alphabeta(board, 1,-math.inf,math.inf, True)
+            if algo == "minimax":
+                col, minimax_score = minimax(board, level, True)
+            elif algo == "alphabeta":
+                col, minimax_score = alphabeta(board, level,-math.inf,math.inf, True)
             computer_lower = col-1
             computer_upper = col+1
             if IsValidCell(board, col):
@@ -347,13 +352,84 @@ def play_game():
 
         print_board(board)
         MakeBoard(board)
-        time.sleep(1)
+        # time.sleep(1)
 
     pygame.time.wait(1000)
+    return count
+
+selected_level = None
+selected_algorithm = None
+
+def level_selected():
+    global selected_level
+    selected_level = level_combobox.get()
+    window.destroy()
+
+def select_level():
+    global window, level_combobox
+
+    # Create the main window
+    window = tk.Tk()
+    window.title("level Selection")
+
+    # level Type Selection
+    level_label = ttk.Label(window, text="Select level Type:")
+    level_label.pack()
+
+    level_combobox = ttk.Combobox(window, values=["Easy", "Medium","Hard"])
+    level_combobox.pack()
+
+    # Button to confirm selection
+    confirm_button = ttk.Button(window, text="Confirm", command=level_selected)
+    confirm_button.pack()
+
+    # Run the main window loop
+    window.mainloop()
+
+    return selected_level
 
 
+def algorithm_selected():
+    global selected_algorithm
+    selected_algorithm = algorithm_combobox.get()
+    window.destroy()
 
+def select_algorithm():
+    global window, algorithm_combobox
 
+    # Create the main window
+    window = tk.Tk()
+    window.title("Algorithm Selection")
+
+    # Algorithm Type Selection
+    algorithm_label = ttk.Label(window, text="Select Algorithm Type:")
+    algorithm_label.pack()
+
+    algorithm_combobox = ttk.Combobox(window, values=["minimax", "alphabeta"])
+    algorithm_combobox.pack()
+
+    # Button to confirm selection
+    confirm_button = ttk.Button(window, text="Confirm", command=algorithm_selected)
+    confirm_button.pack()
+
+    # Run the main window loop
+    window.mainloop()
+
+    return selected_algorithm
 
 # Start the Game
-play_game()
+algorithm_type = select_algorithm()
+print("Selected Algorithm:", algorithm_type)
+level_type = select_level()
+print("Selected Algorithm:", level_type)
+if level_type == "Easy":
+    level_type=1
+elif level_type == "Medium":
+    level_type=3
+elif level_type == "Hard":
+    level_type=5
+
+steps=play_game(algorithm_type,level_type)
+print("the steps: ",steps)
+
+
