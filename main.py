@@ -4,8 +4,7 @@ import numpy as np
 import math
 import time
 import random
-
-
+from pygame.locals import *
 
 R = 6
 C = 7
@@ -95,7 +94,7 @@ def HaveWon(game_board, cell):
 def CalculateScore(window, cell):
     sc= 0
     o_cell = COMPUTER
-    if o_cell == COMPUTER:
+    if cell == COMPUTER:
         o_cell = AI_AGENT
 
     if window.count(cell) == 4:
@@ -300,7 +299,7 @@ def play_game():
     board = generate_board()
     game_over = False
     turn = 0
-    flag = True
+    flag = 0
     pygame.init()
 
     while not game_over:
@@ -310,7 +309,9 @@ def play_game():
 
         if turn == 0:
             # Agent's Move
-            # col, minimax_score = minimax(board, 5, True)
+            # if flag == 1:
+            #     col, minimax_score = minimax(board, 5, True)
+            # elif flag == 2:
             col, minimax_score = alphabeta(board, 1,-math.inf,math.inf, True)
             computer_lower = col-1
             computer_upper = col+1
@@ -349,6 +350,10 @@ def play_game():
         time.sleep(1)
 
     pygame.time.wait(1000)
+
+
+
+
 
 # Start the Game
 play_game()
