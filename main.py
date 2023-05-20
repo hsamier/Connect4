@@ -101,6 +101,44 @@ def HaveWon(game_board, cell):
                 game_board[i+3][j+3] == cell):
                 return True
 
+#check if anyone will won
+def willWon(game_board, cell):
+# Check vertical
+    for j in range(C):
+        for i in range(R - 3):
+            if (game_board[i][j] == cell and
+                game_board[i + 1][j] == cell and
+                game_board[i + 2][j] == cell and
+                game_board[i + 3][j] == 0):
+                return True , j
+
+# Check horizontal
+    for j in range(C - 3):
+        for i in range(R):
+            if (game_board[i][j] == cell and
+                game_board[i][j + 1] == cell and
+                game_board[i][j + 2] == cell and
+                game_board[i][j + 3] == 0):
+                return True , j + 3
+
+        # Check negatively diagonals
+    for j in range(C - 3):
+        for i in range(3, R):
+            if (game_board[i][j] == cell and
+                game_board[i - 1][j + 1] == cell and
+                game_board[i - 2][j + 2] == cell and
+                game_board[i - 3][j + 3] == 0):
+                return True , j + 3
+
+        # Check positively diagonals
+    for j in range(C-3):
+        for i in range(R-3):
+            if (game_board[i][j] == cell and
+                game_board[i+1][j+1] == cell and
+                game_board[i+2][j+2] == cell and
+                game_board[i+3][j+3] == 0):
+                return True , j+3
+    return False, 0
 
 # a function to calculate the score points of the move
 def CalculateScore(window, cell):
@@ -316,20 +354,42 @@ def play_game(algo,level):
     game_over = False
     turn = 0
     pygame.init()
-    count = 0  # counting the number of steps of the AI_AGENT in the game to won
+    count =0
     while not game_over:
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
 
-        if turn == 0: #AGENT's turn
+        if turn == 0 :
+            iwin, col_won2 = willWon(board, 1)
+            iswin, col_won = willWon(board, 2)
             count += 1
             # Agent's Move
             if algo == "minimax":
-                col, minimax_score = minimax(board, level, True)
+                if not iswin: #if compuer can't won in this turn
+                    col, minimax_score = minimax(board, level, True)
+                    print("mini")
+                else:
+                    if iwin:  #if agent will win in this turn
+                        col=col_won2
+                        print("mini")
+                    else:  # if computer will win in this turn
+                        col = col_won
+                        print("rand")
+                        print(col_won)
             elif algo == "alphabeta":
-                col, minimax_score = alphabeta(board, level,-math.inf,math.inf, True)
+                if not iswin:
+                    col, minimax_score = alphabeta(board, level,-math.inf,math.inf, True)
+                    print("alphabeta")
+                else:
+                    if iwin:
+                        col=col_won2
+                        print("alphabeta")
+                    else:
+                        col = col_won
+                        print("rand")
+                        print(col_won)
             computer_lower = col-1
             computer_upper = col+1
             if IsValidCell(board, col):
@@ -348,19 +408,20 @@ def play_game(algo,level):
                 computer_lower = 0
             if computer_upper > 6:
                 computer_upper = 6
+            # col = random.randint(0, C-1)
+            coll = random.randint(computer_lower,computer_upper)
 
-            col = random.randint(computer_lower,computer_upper)
             # col, minimax_score = alphabeta(board, 1,-math.inf,math.inf, True)
-            if IsValidCell(board, col):
-                row = next_row(board, col)
-                Drop(board, row, col, 2)
+            if IsValidCell(board, coll):
+                row = next_row(board, coll)
+                Drop(board, row, coll, 2)
 
                 if HaveWon(board, 2):
                     label = myfont.render("Computer wins!!", 1, blue)
                     screen.blit(label, (40, 10))
                     game_over = True
 
-                turn =0
+                turn = 0
 
         print_board(board)
         MakeBoard(board)
@@ -368,6 +429,7 @@ def play_game(algo,level):
 
     pygame.time.wait(1000)
     return count
+
 
 selected_level = None
 selected_algorithm = None
