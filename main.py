@@ -9,21 +9,28 @@ from tkinter import ttk
 
 from pygame.locals import *
 
-R = 6
-C = 7
-comp = 0
+# Global variables
+R = 6 #no of rows
+C = 7 #no of columns
+comp = 0 #computer turn
+
+# randomizing computer choice
 computer_lower = 0
 computer_upper = 0
-COMPUTER  = 1
-AI = 1
-AI_AGENT = 2
-FREE = 0
+
+COMPUTER  = 1 #computer piece
+AI = 1 #AI_Agent turn
+AI_AGENT = 2 # AI_AGENT piece
+FREE = 0   #free place
 WINDOW_LENGTH = 4
+
+#colors of the board
 white = (200,200,200)
 black = (150,150,150)
 red = (150,0,0)
 blue = (0,0,150)
 
+#a function to generate the board game
 def generate_board():
     row = []
     for i in range(R):
@@ -34,26 +41,28 @@ def generate_board():
         board = np.array(row)
     return board
 
+# a function to print board
 def print_board(game_board):
     print(np.flip(game_board, 0))
 
-#
+# drop a piece in a cell
 def Drop(game_board, row, column, cell):
     game_board[row][column] = cell
 
+# check whether this column is valid for placing gamepiece or not
 def IsValidCell(game_board, column):
     if game_board[R-1][column] == 0 :
         return True
     else:
         return False
 
+# a function to get next available row
 def next_row(game_board, column):
     for i in range(R):
         if game_board[i][column] == 0:
             return i
 
-
-
+# check whether this move is a winning move or not
 def HaveWon(game_board, cell):
 
 # Check vertical
@@ -74,7 +83,7 @@ def HaveWon(game_board, cell):
                 game_board[i][j + 3] == cell):
                 return True
 
-        # Check negatively diagonals
+# Check negatively diagonals
     for j in range(C - 3):
         for i in range(3, R):
             if (game_board[i][j] == cell and
@@ -83,7 +92,7 @@ def HaveWon(game_board, cell):
                 game_board[i - 3][j + 3] == cell):
                 return True
 
-        # Check positively diagonals
+# Check positively diagonals
     for j in range(C-3):
         for i in range(R-3):
             if (game_board[i][j] == cell and
@@ -93,14 +102,14 @@ def HaveWon(game_board, cell):
                 return True
 
 
-
+# a function to calculate the score points of the move
 def CalculateScore(window, cell):
     sc= 0
     o_cell = COMPUTER
     if cell == COMPUTER:
         o_cell = AI_AGENT
 
-    if window.count(cell) == 4:
+    if window.count(cell) == 4: #highest score for the winning move
         sc+=100
     elif window.count(cell) == 3 and window.count(FREE) == 1:
         sc+=20
@@ -111,9 +120,11 @@ def CalculateScore(window, cell):
 
     return sc
 
+
 def CellPoints(game_board, token):
     points = 0
     ## Score center column
+    #increasing the points when placing the piece in the center of the board
     game_board_center = [int(i) for i in list(game_board[:, C//2])]
     board_center_count = game_board_center.count(token)
     points += board_center_count * 3
@@ -146,12 +157,14 @@ def CellPoints(game_board, token):
 
     return points
 
+# a function to check whether this is the last move or not
 def IsLastMove(game_board):
     if HaveWon(game_board, COMPUTER ) or HaveWon(board, AI_AGENT) or len(GetValidCells(game_board)) == 0:
         return True
     else:
         return False
 
+# applying minimax algorithim which will be used by the AI agent
 def minimax(game_board, depth, maximizedP):
         valid_cells = GetValidCells(game_board)
         lastmove = IsLastMove(game_board)
@@ -195,20 +208,22 @@ def minimax(game_board, depth, maximizedP):
 
 
 
+# applying alpha beta algorthim which will be used by the AI agent
 
 def alphabeta(game_board, depth, alpha, beta, maximizedP):
         valid_cells = GetValidCells(game_board)
         lastmove = IsLastMove(game_board)
         if depth == 0 or lastmove:
             if lastmove:
-                if HaveWon(game_board, AI_AGENT):
+                if HaveWon(game_board, AI_AGENT): #AI_AGENT have won
                     return (None, 100000000000000)
-                elif HaveWon(game_board, COMPUTER):
+                elif HaveWon(game_board, COMPUTER): #computer have won
                     return (None, -10000000000000)
-                else: # Game is over, no more valid moves
+                else: # Game is over, no more valid moves(Draw)
                     return (None, 0)
             else: # Depth is zero
                 return (None, CellPoints(game_board, AI_AGENT))
+       #maximizing the points of the column
         if maximizedP:
             val = -math.inf
             column = random.choice(valid_cells)
@@ -243,8 +258,7 @@ def alphabeta(game_board, depth, alpha, beta, maximizedP):
 
 
 
-
-
+# a function to return the valid cells for placing gamepiece
 def GetValidCells(game_board):
 	valid_cells = []
 	for col in range(C):
@@ -255,21 +269,19 @@ def GetValidCells(game_board):
 
 
 
+# GUI for the board game
 def MakeBoard(board):
     for c in range(C):
         for r in range(R):
             pygame.draw.rect(screen, black, (c * SQUARESIZE, r * SQUARESIZE + SQUARESIZE, SQUARESIZE, SQUARESIZE))
-            pygame.draw.circle(screen, white, (
-            int(c * SQUARESIZE + SQUARESIZE / 2), int(r * SQUARESIZE + SQUARESIZE + SQUARESIZE / 2)), RADIUS)
+            pygame.draw.circle(screen, white, (int(c * SQUARESIZE + SQUARESIZE / 2), int(r * SQUARESIZE + SQUARESIZE + SQUARESIZE / 2)), RADIUS)
 
     for c in range(C):
         for r in range(R):
             if board[r][c] == COMPUTER:
-                pygame.draw.circle(screen, red, (
-                int(c * SQUARESIZE + SQUARESIZE / 2), height - int(r * SQUARESIZE + SQUARESIZE / 2)), RADIUS)
+                pygame.draw.circle(screen, red, (int(c * SQUARESIZE + SQUARESIZE / 2), height - int(r * SQUARESIZE + SQUARESIZE / 2)), RADIUS)
             elif board[r][c] == AI_AGENT:
-                pygame.draw.circle(screen, blue, (
-                int(c * SQUARESIZE + SQUARESIZE / 2), height - int(r * SQUARESIZE + SQUARESIZE / 2)), RADIUS)
+                pygame.draw.circle(screen, blue, (int(c * SQUARESIZE + SQUARESIZE / 2), height - int(r * SQUARESIZE + SQUARESIZE / 2)), RADIUS)
     pygame.display.update()
 
 
@@ -294,24 +306,24 @@ pygame.display.update()
 
 myfont = pygame.font.SysFont("monospace", 75)
 
-
+#randomizing which one will start
 turn = random.randint(comp, AI)
 
 
+# function for the game to be played for the AI agent against the computer
 def play_game(algo,level):
     board = generate_board()
     game_over = False
     turn = 0
-    flag = 0
     pygame.init()
-    count =0
+    count = 0  # counting the number of steps of the AI_AGENT in the game to won
     while not game_over:
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
 
-        if turn == 0:
+        if turn == 0: #AGENT's turn
             count += 1
             # Agent's Move
             if algo == "minimax":
@@ -352,7 +364,7 @@ def play_game(algo,level):
 
         print_board(board)
         MakeBoard(board)
-        # time.sleep(1)
+        time.sleep(0.5)
 
     pygame.time.wait(1000)
     return count
@@ -364,7 +376,7 @@ def level_selected():
     global selected_level
     selected_level = level_combobox.get()
     window.destroy()
-
+# choosing the level of diffculty to be applied
 def select_level():
     global window, level_combobox
 
@@ -394,6 +406,7 @@ def algorithm_selected():
     selected_algorithm = algorithm_combobox.get()
     window.destroy()
 
+# choosing the algorithm to be applied
 def select_algorithm():
     global window, algorithm_combobox
 
@@ -431,5 +444,3 @@ elif level_type == "Hard":
 
 steps=play_game(algorithm_type,level_type)
 print("the steps: ",steps)
-
-
